@@ -41,20 +41,34 @@ int main(int argc, char **argv)
     rewind(DataFile);
     srand(time(NULL));
 
-    unsigned int RandomNumber = (rand() % LinesCount) + 1;
+    unsigned int RandomNumber = 1;
+    do
+    {
+        RandomNumber = rand();
+    } while (RandomNumber >= (RAND_MAX - RAND_MAX % LinesCount));
+    RandomNumber %= LinesCount;
 
-    unsigned int CurrentLineNumber = 0;
-    char *RandCurrentLine = NULL;
+    if (RandomNumber == 0)
+        RandomNumber++;
+
+    unsigned int CurrentLineNumber = 1;
+    char *RandLine = NULL;
     size_t RandLineLength = 0;
     ssize_t RandRead;
 
-    while (CurrentLineNumber != RandomNumber && (RandRead = getline(&RandCurrentLine, &RandLineLength, DataFile)) != -1)
-        CurrentLineNumber += 1;
+    while ((RandRead = getline(&RandLine, &RandLineLength, DataFile)) != -1)
+        if (CurrentLineNumber != RandomNumber)
+            CurrentLineNumber += 1;
+        else
+            break;
 
-    fprintf(stdout, "%s\n", RandCurrentLine);
+    if (CurrentLineNumber == RandomNumber)
+        fprintf(stdout, "N°%d => %s\n", RandomNumber, RandLine);
+    else
+        printf("%s, %d, %d", RandLine, RandomNumber, CurrentLineNumber);
 
-    if (RandCurrentLine != NULL)
-        free(RandCurrentLine);
+    if (RandLine != NULL)
+        free(RandLine);
 
     fclose(DataFile);
     return 0;
